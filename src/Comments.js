@@ -1,30 +1,14 @@
 import { useState, useEffect, useContext } from "react";
 import CommentForm from "./CommentForm";
 import Comment from "./Comment";
-import {
-  getComments as getCommentsApi,
-  createComment as createCommentApi,
-  updateComment as updateCommentApi,
-  deleteComment as deleteCommentApi,
-} from "./api";
-
 import UserContext from "./context";
 import Paginate from "./Paginate";
 
 // const backenaUrl = "ws://127.0.0.1:8080/ws/comments/";
 const backenaUrl = "wss://young-sound-9142.fly.dev/ws/comments/";
 
-const Comments = ({ commentsUrl, currentUserId }) => {
-  const {
-    user_id,
-    user_name,
-    email,
-    home_page,
-    // setUserId,
-    // setUserName,
-    // setEmail,
-    // setHomePage,
-  } = useContext(UserContext);
+const Comments = () => {
+  const { user_id, user_name, email, home_page } = useContext(UserContext);
   const [backendComments, setBackendComments] = useState([]);
   const [activeComment, setActiveComment] = useState(null);
 
@@ -45,9 +29,6 @@ const Comments = ({ commentsUrl, currentUserId }) => {
     );
   };
   useEffect(() => {
-    // getCommentsApi().then((data) => {
-    //   setBackendComments(data);
-    // });
     webSocket.onopen = (event) => {
       console.log("Opened");
       webSocket_send_action_list();
@@ -111,17 +92,8 @@ const Comments = ({ commentsUrl, currentUserId }) => {
         },
       })
     );
-    // webSocket.send(
-    //   JSON.stringify({
-    //     action: "list",
-    //     request_id: new Date().getTime(),
-    //   })
-    // );
 
-    // createCommentApi(text, parentId).then((comment) => {
-    //   setBackendComments([comment, ...backendComments]);
     setActiveComment(null);
-    // });
   };
 
   const updateComment = (text, commentId) => {
@@ -153,50 +125,49 @@ const Comments = ({ commentsUrl, currentUserId }) => {
   const previousPage = () => {
     if (currentPage !== 1) {
       webSocket_send_action_list(currentPage - 1);
-      // setCurrentPage(currentPage - 1);
     }
   };
 
   const nextPage = () => {
     if (currentPage !== Math.ceil(totalPosts / postsPerPage)) {
       webSocket_send_action_list(currentPage + 1);
-      // setCurrentPage(currentPage + 1);
     }
   };
 
   return (
-    <div className="m-3">
-      <h3 className="">Comments</h3>
-      <div className="">
-        {rootComments.map((rootComment) => (
-          <Comment
-            key={rootComment.id}
-            comment={rootComment}
-            // replies={getReplies(rootComment.id)}
-            getReplies={getReplies}
-            activeComment={activeComment}
-            setActiveComment={setActiveComment}
-            addComment={addComment}
-            deleteComment={deleteComment}
-            updateComment={updateComment}
-            currentUserId={currentUserId}
-          />
-        ))}
+    <div className="row justify-content-between d-flex flex-row">
+      <div className="flex-fill col-xl-9 m-1 px-0">
+        <h3 className="">Comments</h3>
+        <div className="">
+          {rootComments.map((rootComment) => (
+            <Comment
+              key={rootComment.id}
+              comment={rootComment}
+              getReplies={getReplies}
+              activeComment={activeComment}
+              setActiveComment={setActiveComment}
+              addComment={addComment}
+              deleteComment={deleteComment}
+              updateComment={updateComment}
+              currentUserId={user_id}
+            />
+          ))}
+        </div>
+        <div className="">Please leave a comment</div>
+        <CommentForm
+          submitLabel="Leave a comment"
+          handleSubmitComment={addComment}
+        />
+        {/* <pre>{backendComments}</pre> */}
+        <Paginate
+          postsPerPage={postsPerPage}
+          totalPosts={totalPosts}
+          paginate={webSocket_send_action_list}
+          previousPage={previousPage}
+          nextPage={nextPage}
+          currentPage={currentPage}
+        />
       </div>
-      <div className="">Please leave a comment</div>
-      <CommentForm
-        submitLabel="Leave a comment"
-        handleSubmitComment={addComment}
-      />
-      {/* <pre>{backendComments}</pre> */}
-      <Paginate
-        postsPerPage={postsPerPage}
-        totalPosts={totalPosts}
-        paginate={webSocket_send_action_list}
-        previousPage={previousPage}
-        nextPage={nextPage}
-        currentPage={currentPage}
-      />
     </div>
   );
 };

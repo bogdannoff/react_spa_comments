@@ -5,7 +5,7 @@ import CommentField from "./CommentField";
 
 const Comment = ({
   comment,
-  // replies,
+
   getReplies,
   setActiveComment,
   activeComment,
@@ -36,15 +36,10 @@ const Comment = ({
       email === comment.user.email &&
       replies.length === 0;
 
-  // const canDelete =
-  // currentUserId === comment.userId && replies.length === 0 && !timePassed;
-  // const canReply = Boolean(currentUserId);
-
   const canEdit = user_id
     ? comment.user !== null && user_id === comment.user.userId
     : comment.user !== null && email === comment.user.email;
 
-  // const replyId = parentId ? parentId : comment.id;
   const replyId = comment.id;
   const firstLevelId = comment.parent ? comment.parent_first_level : comment.id;
   const createdAt_date = new Date(comment.created_at);
@@ -153,7 +148,7 @@ const Comment = ({
           )}
         </div>
         {replies.length > 0 && (
-          <div className="ms-5">
+          <div className="border-start ps-5">
             {replies.map((reply) => (
               <Comment
                 comment={reply}
@@ -164,7 +159,6 @@ const Comment = ({
                 deleteComment={deleteComment}
                 addComment={addComment}
                 parentId={comment.id}
-                // replies={replies}
                 getReplies={getReplies}
                 currentUserId={currentUserId}
               />
